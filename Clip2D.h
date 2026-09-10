@@ -25,7 +25,33 @@ static std::vector<Semiplane> clip_polygon = {
 
 template<class Vertex>
 bool line_clip(Line<Vertex>& line){
-	/**************** TAREFA - AULA 09 **************/
+	vec2 A = get2DPosition(line[0]);
+	vec2 B = get2DPosition(line[1]);
+	float maxIn = 0, minOut = 1;
+
+	for(Semiplane S: clip_polygon){
+		bool Ain = S.has(A);
+		bool Bin = S.has(B);
+
+		if(!Ain && !Bin)
+			return false;
+		if(Ain && Bin)
+			continue;
+
+		float t = S.intersect(A, B);
+		if(Ain)
+			minOut = std::min(minOut, t);
+		else
+			maxIn = std::max(maxIn, t);
+
+		if(maxIn > minOut)
+			return false;
+	}
+
+	// As duas interpolações usam os vértices originais.
+	Line<Vertex> original = line;
+	line[0] = mix_line(maxIn, original);
+	line[1] = mix_line(minOut, original);
 	return true;
 }
 

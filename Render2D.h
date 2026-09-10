@@ -40,7 +40,21 @@ struct Render2D{
 	}
 	
 	void draw(Triangle<Varying> tri){
-		/* TAREFA - AULA 09 */
+		vec2 T[] = {
+			toScreen(get2DPosition(tri[0])),
+			toScreen(get2DPosition(tri[1])),
+			toScreen(get2DPosition(tri[2]))
+		};
+
+		// Triângulos sem área não possuem coordenadas baricêntricas.
+		if(fabs(tri_area(T[0], T[1], T[2])) < 1e-15)
+			return;
+
+		for(Pixel p: rasterizeTriangle(T)){
+			vec3 a = barycentric_coords(toVec2(p), T);
+			Varying vi = mix_triangle(a, tri);
+			paint(p, vi);
+		}
 	}
 
 	vec2 toScreen(vec2 P) const{
